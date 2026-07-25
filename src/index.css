@@ -1,0 +1,26 @@
+/* These three lines pull in Tailwind's generated CSS.
+   @tailwind base   -> resets browser default styles
+   @tailwind components -> lets us define reusable class combos later
+   @tailwind utilities -> all the bg-*, text-*, flex, etc. classes */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-surface-light text-gray-900 antialiased;
+  @apply dark:bg-surface-dark dark:text-gray-100;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Custom scrollbar - small polish detail for a "premium" feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-brand-green-500/40 rounded-full;
+}
