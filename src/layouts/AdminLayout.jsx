@@ -1,18 +1,14 @@
 import { Outlet } from 'react-router-dom'
+import { LogOut, Menu, ShieldCheck, X } from 'lucide-react'
+import { useState } from 'react'
+import AdminNav from '../components/admin/AdminNav.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 
-// Admin shell: sidebar + content area. Sidebar navigation links will be
-// built out in the "Administrator Module" milestone, along with the
-// route-protection guard that stops citizens from reaching /admin.
 export default function AdminLayout() {
-  return (
-    <div className="min-h-screen flex">
-      <aside className="w-60 border-r border-gray-200 dark:border-gray-800 p-4">
-        <span className="font-bold text-brand-green-600">WTF Admin</span>
-        {/* Sidebar nav links go here in a later milestone */}
-      </aside>
-      <main className="flex-1 p-6">
-        <Outlet />
-      </main>
-    </div>
-  )
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [logoutError, setLogoutError] = useState(null)
+  const { user, logout } = useAuth()
+  async function handleLogout() { setLogoutError(null); try { await logout() } catch { setLogoutError('Unable to sign out. Please try again.') } }
+  const sidebar = <div className="flex h-full flex-col bg-white p-5"><div className="flex items-center gap-3 border-b border-slate-200 pb-5"><span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-green-600 text-sm font-black text-white">WTF</span><div><p className="font-bold text-slate-900">Administration</p><p className="text-xs text-slate-500">Kakinada civic platform</p></div></div><div className="mt-6 flex-1"><AdminNav onNavigate={() => setIsMenuOpen(false)} /></div><div className="border-t border-slate-200 pt-4"><p className="truncate text-sm font-medium text-slate-800">{user?.displayName || 'Administrator'}</p><p className="truncate text-xs text-slate-500">{user?.email}</p><button type="button" onClick={handleLogout} className="mt-4 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"><LogOut className="h-4 w-4" aria-hidden="true" />Sign out</button>{logoutError && <p className="mt-2 text-xs text-brand-red-600" role="alert">{logoutError}</p>}</div></div>
+  return <div className="min-h-screen bg-slate-100 lg:flex"><aside className="hidden w-72 border-r border-slate-200 lg:block">{sidebar}</aside>{isMenuOpen && <div className="fixed inset-0 z-40 bg-slate-900/40 lg:hidden" onClick={() => setIsMenuOpen(false)} aria-hidden="true" />}<aside className={`fixed inset-y-0 left-0 z-50 w-72 shadow-xl transition-transform lg:hidden ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}><button type="button" className="absolute right-4 top-4 text-slate-500" onClick={() => setIsMenuOpen(false)} aria-label="Close navigation"><X className="h-5 w-5" /></button>{sidebar}</aside><main className="min-w-0 flex-1"><header className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4 lg:px-8"><button type="button" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden" onClick={() => setIsMenuOpen(true)} aria-label="Open navigation"><Menu className="h-5 w-5" /></button><div className="ml-auto flex items-center gap-2 text-sm text-slate-600"><ShieldCheck className="h-5 w-5 text-brand-green-600" aria-hidden="true" />Verified administrator</div></header><div className="p-5 lg:p-8"><Outlet /></div></main></div>
 }

@@ -1,4 +1,5 @@
-// STUB PAGE — Google Maps integration built in a later milestone.
+import { MapPinned } from 'lucide-react'
+
 export default function MapPage() {
-  return <div className="p-8"><h1 className="text-2xl font-bold">Live Map</h1></div>
+  return <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14"><p className="text-sm font-semibold text-brand-green-700">Issue map</p><h1 className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">Civic issue map</h1><p className="mt-3 max-w-2xl text-slate-600">Interactive map markers will be available after report locations and Google Maps are connected in the map milestone.</p><div className="mt-8 grid min-h-72 place-items-center rounded-2xl border border-dashed border-slate-300 bg-slate-100 p-6 text-center sm:min-h-96"><div><MapPinned className="mx-auto h-12 w-12 text-brand-green-600" aria-hidden="true" /><h2 className="mt-4 text-xl font-bold text-slate-900">Map data is not connected yet</h2><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">No issue locations or markers are shown until the application has real, permissioned report data to display.</p></div></div></section>
 }

@@ -1,4 +1,42 @@
-// STUB PAGE — the core report-submission form built in a later milestone.
+import { ImagePlus, LocateFixed, MapPin, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext.jsx'
+import { submitReport } from '../../services/firebase/reports.js'
+
+const categories = ['Garbage / Waste', 'Road Damage', 'Drainage', 'Street Light', 'Water Issue', 'Public Toilet', 'Other']
+const maxPhotoSize = 5 * 1024 * 1024
+
 export default function ReportPage() {
-  return <div className="p-8"><h1 className="text-2xl font-bold">Report an Issue</h1></div>
+  const { user, isFirebaseConfigured } = useAuth()
+  const [form, setForm] = useState({ category: '', description: '', location: '', additionalDetails: '' })
+  const [photo, setPhoto] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState(null)
+  const [error, setError] = useState(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [referenceId, setReferenceId] = useState(null)
+  useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl) }, [previewUrl])
+  const update = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value }))
+
+  function handlePhoto(event) {
+    const selectedFile = event.target.files?.[0]; setError(null)
+    if (!selectedFile) return
+    if (!selectedFile.type.startsWith('image/')) { setError('Choose an image file (JPG, PNG, or WEBP).'); return }
+    if (selectedFile.size > maxPhotoSize) { setError('Choose an image smaller than 5 MB.'); return }
+    if (previewUrl) URL.revokeObjectURL(previewUrl)
+    setPhoto(selectedFile); setPreviewUrl(URL.createObjectURL(selectedFile))
+  }
+  function useLocation() {
+    if (!navigator.geolocation) { setError('Location is not supported by this browser. Please enter a landmark manually.'); return }
+    setError(null); navigator.geolocation.getCurrentPosition((position) => setForm((current) => ({ ...current, location: `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}` })), () => setError('We could not access your location. Please enter a landmark manually.'), { enableHighAccuracy: true, timeout: 10000 })
+  }
+  async function handleSubmit(event) {
+    event.preventDefault(); setError(null)
+    if (!user) { setError('Sign in or create an account before submitting a report.'); return }
+    if (!form.category || !form.description.trim() || !form.location.trim()) { setError('Choose a category, describe the issue, and provide a location.'); return }
+    setIsSubmitting(true)
+    try { setReferenceId(await submitReport({ user, ...form, photo })) } catch { setError('Your report could not be submitted. Check your Firebase configuration and try again.') } finally { setIsSubmitting(false) }
+  }
+  if (referenceId) return <section className="mx-auto max-w-2xl px-4 py-12 sm:px-6"><div className="rounded-2xl border border-brand-green-100 bg-brand-green-50 p-6 sm:p-8"><p className="text-sm font-semibold text-brand-green-700">Report submitted</p><h1 className="mt-2 text-3xl font-bold text-slate-900">Thank you for reporting this issue.</h1><p className="mt-4 text-slate-700">Your reference ID is <strong className="font-mono text-brand-green-700">{referenceId}</strong>. Save it to track updates.</p><Link to={`/track?reference=${encodeURIComponent(referenceId)}`} className="mt-6 inline-block rounded-lg bg-brand-green-600 px-5 py-3 font-semibold text-white hover:bg-brand-green-700">Track this report</Link></div></section>
+  return <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14"><p className="text-sm font-semibold text-brand-green-700">Citizen reporting</p><h1 className="mt-2 text-3xl font-bold text-slate-900 sm:text-4xl">Report an issue</h1><p className="mt-3 max-w-2xl text-slate-600">Provide the details you know. Fields marked required are needed to submit.</p>{!isFirebaseConfigured && <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Report submission needs Firebase configuration. You can review the form, but a report cannot be stored until the required environment variables and Firebase rules are deployed.</div>}<form className="mt-8 space-y-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-soft sm:p-8" onSubmit={handleSubmit}><label className="block text-sm font-semibold text-slate-700">Issue category<span aria-hidden="true"> *</span><select required value={form.category} onChange={update('category')} className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 focus:border-brand-green-600 focus:outline-none focus:ring-2 focus:ring-brand-green-100"><option value="">Select a category</option>{categories.map((category) => <option key={category}>{category}</option>)}</select></label><label className="block text-sm font-semibold text-slate-700">Describe the issue<span aria-hidden="true"> *</span><textarea required rows="5" maxLength="1000" value={form.description} onChange={update('description')} placeholder="What happened? Include useful details such as the severity or nearby landmark." className="mt-2 w-full resize-y rounded-lg border border-slate-300 px-3 py-3 focus:border-brand-green-600 focus:outline-none focus:ring-2 focus:ring-brand-green-100" /><span className="mt-1 block text-right text-xs font-normal text-slate-500">{form.description.length}/1000</span></label><fieldset><legend className="text-sm font-semibold text-slate-700">Photo evidence <span className="font-normal text-slate-500">(optional)</span></legend><label className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 p-5 text-sm font-medium text-slate-600 hover:border-brand-green-600 hover:bg-brand-green-50"><ImagePlus className="h-5 w-5" aria-hidden="true" />Choose an image (max 5 MB)<input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhoto} className="sr-only" /></label>{previewUrl && <div className="relative mt-3"><img src={previewUrl} alt="Selected evidence preview" className="max-h-64 w-full rounded-lg object-cover" /><button type="button" onClick={() => { URL.revokeObjectURL(previewUrl); setPreviewUrl(null); setPhoto(null) }} className="absolute right-2 top-2 rounded-full bg-white p-2 text-slate-700 shadow focus:outline-none focus:ring-2 focus:ring-brand-green-600" aria-label="Remove selected photo"><X className="h-4 w-4" /></button></div>}</fieldset><div><label className="block text-sm font-semibold text-slate-700">Location or nearest landmark<span aria-hidden="true"> *</span><span className="mt-1 block text-xs font-normal text-slate-500">A landmark, street, or coordinates helps the team locate the issue.</span><input required value={form.location} onChange={update('location')} placeholder="Example: Near Gandhi Park main gate" className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-3 focus:border-brand-green-600 focus:outline-none focus:ring-2 focus:ring-brand-green-100" /></label><button type="button" onClick={useLocation} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-brand-green-600 px-3 py-2 text-sm font-semibold text-brand-green-700 hover:bg-brand-green-50"><LocateFixed className="h-4 w-4" aria-hidden="true" />Use my current location</button></div><label className="block text-sm font-semibold text-slate-700">Additional details <span className="font-normal text-slate-500">(optional)</span><textarea rows="3" maxLength="500" value={form.additionalDetails} onChange={update('additionalDetails')} className="mt-2 w-full resize-y rounded-lg border border-slate-300 px-3 py-3 focus:border-brand-green-600 focus:outline-none focus:ring-2 focus:ring-brand-green-100" /></label>{error && <p className="rounded-lg bg-red-50 px-3 py-3 text-sm text-brand-red-600" role="alert">{error}</p>}{!user && <p className="flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-3 text-sm text-slate-700"><MapPin className="h-4 w-4 shrink-0" aria-hidden="true" /><Link to="/login" className="font-semibold text-brand-green-700 underline">Sign in or register</Link> before submitting your report.</p>}<button disabled={isSubmitting || !isFirebaseConfigured} className="w-full rounded-lg bg-brand-green-600 px-5 py-3 font-semibold text-white hover:bg-brand-green-700 focus:outline-none focus:ring-2 focus:ring-brand-green-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60">{isSubmitting ? 'Submitting report…' : isFirebaseConfigured ? 'Submit report' : 'Firebase setup required to submit'}</button></form></section>
 }

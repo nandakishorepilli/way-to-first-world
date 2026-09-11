@@ -1,67 +1,55 @@
 # WTF — Way To First World Country
 
-Civic issue reporting platform. First city: Kakinada, Andhra Pradesh, India.
+WTF is a civic issue reporting platform for Kakinada, Andhra Pradesh.
 
-## Milestone 1 status: Project Scaffolding ✅
+## Current milestone: Citizen MVP foundation
 
-This is the project skeleton — folder structure, routing, styling system, and
-constants. No real features (auth, reporting, maps) are built yet. Every page
-you see is a labeled stub.
+The public site is responsive and uses real React Router navigation. Citizens can register or sign in with Firebase Email/Password, fill out a report form, attach an image, add a location, submit a Firestore/Storage-backed report, receive a reference ID, and look up reports from their own account. The map page deliberately shows no markers until real map integration and report-location display are built.
 
-## Getting started
+The protected `/admin` foundation remains separate and uses a Firebase `admin: true` custom claim.
 
-1. Install [Node.js](https://nodejs.org/) (LTS version) if you don't have it.
-2. Open a terminal in this folder and install dependencies:
-   ```
-   npm install
-   ```
-3. Start the dev server:
-   ```
-   npm run dev
-   ```
-4. Open the URL it prints (usually `http://localhost:5173`).
+## Run locally
 
-You should see a bare "Welcome to WTF" page with a navbar and footer. Try
-visiting `/map`, `/report`, `/track`, `/login`, and `/admin` — each shows a
-placeholder page confirming routing works.
+1. Install Node.js LTS.
+2. Run `npm install`.
+3. Copy `.env.example` to `.env` and fill in all Firebase values.
+4. In Firebase Console, enable **Email/Password**, create Firestore and Storage, and deploy `firestore.rules` and `storage.rules`.
+5. Run `npm run dev`.
 
-## Environment variables
+Run `npm run lint` and `npm run build` before shipping.
 
-Copy `.env.example` to `.env` and fill in your Firebase + Google Maps keys
-once you create those accounts (covered in a later milestone).
-
-## Folder structure
+## Required environment variables
 
 ```
-src/
-  components/   Reusable UI pieces (buttons, cards, forms)
-    common/       Shared across citizen + admin
-    citizen/      Citizen-only components
-    admin/        Admin-only components
-  pages/        One file per route/screen
-    citizen/      Report, Map, Track pages
-    admin/        Admin dashboard pages
-    shared/       Home, Login, 404
-  layouts/      Page wrappers (navbar+footer, admin sidebar)
-  routes/       (reserved for route-guard logic, added later)
-  hooks/        Custom React hooks (reusable logic)
-  context/      App-wide state (e.g. logged-in user)
-  services/
-    firebase/     Firebase setup + calls
-    api/           Any non-Firebase API calls
-  constants/     Single-source-of-truth lists (categories, statuses)
-  utils/         Small helper functions
-  assets/        Images, icons
+VITE_FIREBASE_API_KEY
+VITE_FIREBASE_AUTH_DOMAIN
+VITE_FIREBASE_PROJECT_ID
+VITE_FIREBASE_STORAGE_BUCKET
+VITE_FIREBASE_MESSAGING_SENDER_ID
+VITE_FIREBASE_APP_ID
 ```
 
-## Common mistakes to avoid
+`VITE_GOOGLE_MAPS_API_KEY` is reserved for the future map milestone. Never commit `.env`, credentials, or Firebase Admin SDK service-account data.
 
-- **Don't hardcode categories or statuses** in new components — always
-  import from `src/constants/categories.js` and `src/constants/status.js`.
-- **Don't commit `.env`** — it will contain secret keys once filled in.
-- **`npm install` before `npm run dev`** — the dev server needs
-  `node_modules/` to exist first.
+## Routes
 
-## Next milestone
+- `/` — citizen home
+- `/report` — authenticated Firestore/Storage-backed issue report
+- `/track` — authenticated report lookup by reference ID
+- `/map` — responsive, intentionally empty map state
+- `/login` — sign in and registration
+- `/admin` — protected administrator dashboard
 
-Citizen authentication (register/login) with Firebase Authentication.
+## Security notes
+
+Citizen reports are readable only by their submitting user or an administrator. Citizens can create reports but cannot alter them after submission; report updates are reserved for the `admin: true` custom claim. Uploaded evidence is stored under the submitting user’s Storage path with image-type and size restrictions.
+
+The browser does not infer administrators from an email address. Assign `admin: true` only with Firebase Admin SDK in a trusted backend, then refresh the user’s token.
+
+## Known limitations
+
+- Firebase rules are included but must be deployed to the selected Firebase project.
+- Photo upload can leave an orphaned Storage object if the Firestore batch fails; production hardening should clean it up through a trusted backend.
+- Google Maps, public map markers, password reset, admin issue management, and notifications are future milestones.
+
+See [docs/PROJECT_STATE.md](docs/PROJECT_STATE.md) for the detailed handoff state.

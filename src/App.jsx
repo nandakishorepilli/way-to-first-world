@@ -9,6 +9,7 @@ import TrackPage from './pages/citizen/TrackPage.jsx'
 import LoginPage from './pages/shared/LoginPage.jsx'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage.jsx'
 import NotFoundPage from './pages/shared/NotFoundPage.jsx'
+import AdminRoute from './routes/AdminRoute.jsx'
 
 // App.jsx is the "traffic router" of the whole site.
 // Public/citizen pages share MainLayout (navbar + footer).
@@ -24,8 +25,10 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
       </Route>
 
-      <Route element={<AdminLayout />}>
-        <Route path="/admin" element={<AdminDashboardPage />} />
+      <Route element={<AdminRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminDashboardPage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

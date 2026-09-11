@@ -1,4 +1,7 @@
-// STUB PAGE — real analytics dashboard built in the admin milestone.
+import { AlertCircle, CheckCircle2, Clock3, FileText } from 'lucide-react'
+
+const metrics = [{ label: 'Total reports', icon: FileText }, { label: 'Pending review', icon: Clock3 }, { label: 'In progress', icon: AlertCircle }, { label: 'Resolved', icon: CheckCircle2 }]
+
 export default function AdminDashboardPage() {
-  return <div><h1 className="text-2xl font-bold">Admin Dashboard</h1></div>
+  return <div className="mx-auto max-w-7xl"><p className="text-sm font-medium text-brand-green-700">Administrator workspace</p><h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1><p className="mt-2 max-w-2xl text-slate-600">Reporting data will appear here when the report-storage milestone is implemented.</p><div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{metrics.map(({ label, icon: Icon }) => <section key={label} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><Icon className="h-5 w-5 text-brand-green-600" aria-hidden="true" /><p className="mt-5 text-sm font-medium text-slate-600">{label}</p><p className="mt-1 text-sm text-slate-400">No report data yet</p></section>)}</div><section className="mt-6 rounded-xl border border-dashed border-slate-300 bg-white p-6"><h2 className="font-semibold text-slate-900">Issue workflow is not connected yet</h2><p className="mt-2 text-sm text-slate-600">Issue lists, maps, assignments, and analytics are intentionally shown as planned until their respective milestones provide Firestore-backed data.</p></section></div>
 }

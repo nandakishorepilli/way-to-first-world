@@ -1,0 +1,5 @@
+import { Link } from 'react-router-dom'
+
+export default function PublicFooter() {
+  return <footer className="mt-auto bg-slate-950 text-slate-300"><div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-2 lg:px-8"><div><p className="text-lg font-bold text-white">WTF</p><p className="mt-2 max-w-sm text-sm leading-6">Way To First World Country helps Kakinada citizens report civic issues and follow their progress.</p></div><div><p className="font-semibold text-white">Citizen tools</p><div className="mt-3 grid gap-2 text-sm"><Link to="/report" className="w-fit hover:text-white">Report an issue</Link><Link to="/track" className="w-fit hover:text-white">Track a complaint</Link><Link to="/map" className="w-fit hover:text-white">Issue map</Link><Link to="/login" className="w-fit hover:text-white">Login / Register</Link></div></div></div><div className="border-t border-white/10 px-4 py-5 text-center text-sm text-slate-400">© {new Date().getFullYear()} WTF · Kakinada, Andhra Pradesh</div></footer>
+}
