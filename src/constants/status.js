@@ -5,11 +5,9 @@
 export const STATUS = {
   SUBMITTED: { id: 'submitted', label: 'Submitted', order: 1, color: 'gray' },
   UNDER_REVIEW: { id: 'under_review', label: 'Under Review', order: 2, color: 'blue' },
-  APPROVED: { id: 'approved', label: 'Approved', order: 3, color: 'blue' },
-  ASSIGNED: { id: 'assigned', label: 'Assigned', order: 4, color: 'orange' },
-  IN_PROGRESS: { id: 'in_progress', label: 'In Progress', order: 5, color: 'orange' },
-  RESOLVED: { id: 'resolved', label: 'Resolved', order: 6, color: 'green' },
-  REJECTED: { id: 'rejected', label: 'Rejected', order: -1, color: 'red' }, // terminal, off the happy path
+  ASSIGNED: { id: 'assigned', label: 'Assigned', order: 3, color: 'orange' },
+  IN_PROGRESS: { id: 'in_progress', label: 'In Progress', order: 4, color: 'orange' },
+  RESOLVED: { id: 'resolved', label: 'Resolved', order: 5, color: 'green' },
 }
 
 export const STATUS_LIST = Object.values(STATUS)

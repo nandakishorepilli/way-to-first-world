@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Citizen MVP foundation: responsive navigation, citizen account access, report submission, and tracking foundation. The existing Admin Foundation remains protected and separate.
+WTF v0.3.0: protected admin issue management. Citizens can submit and track reports; authorized administrators can review report details and update the workflow status.
 
 ## Completed
 
@@ -15,6 +15,7 @@ Citizen MVP foundation: responsive navigation, citizen account access, report su
 - Tracking looks up a reference ID only within the signed-in citizen’s reports and displays the stored status timeline.
 - The map page is an honest responsive empty state until Google Maps and real markers are implemented.
 - `/admin` still requires Firebase authentication plus the trusted `admin: true` custom claim.
+- The protected admin dashboard lists Firestore reports, exposes their details, and lets an authorized administrator update only the supported workflow statuses: submitted, under review, assigned, in progress, and resolved.
 
 ## Architecture
 
@@ -26,7 +27,7 @@ Citizen MVP foundation: responsive navigation, citizen account access, report su
 
 ## Data and security decisions
 
-Reports use `reports/{reportId}` and include `referenceId`, `userId`, category, location, status, optional image URL, and server timestamps. `reportReferences/{referenceId}` maps an owner-safe reference ID to the report document. Firestore rules permit citizens to create/read only their own reports and administrators to read/update them. Storage rules limit citizen uploads to their own report path, image content types, and less than 5 MB.
+Reports use `reports/{reportId}` and include `referenceId`, `userId`, category, location, status, optional image URL, and server timestamps. `reportReferences/{referenceId}` maps an owner-safe reference ID to the report document. Firestore rules permit citizens to create/read only their own reports and only custom-claim administrators to read them or change `status` and `updatedAt`; no report deletion is allowed. Storage is not enabled on the Spark plan, so photo uploads are unavailable.
 
 Firebase configuration is exclusively from `.env` Vite variables. Email/Password must be enabled; Firestore, Storage, and the included rules must be deployed. No local `.env` was present during this session, so live Firebase submission/authentication was not exercised.
 
@@ -37,13 +38,13 @@ Firebase configuration is exclusively from `.env` Vite variables. Email/Password
 
 ## Known limitations
 
-- Photo upload can leave an orphaned Storage object if the Firestore report write fails.
-- Map integration, public marker display, password reset, report editing, notifications, and admin issue operations are not implemented.
+- The existing photo form control is not usable until Firebase Storage is enabled; do not enable billing solely for it.
+- Map integration, public marker display, password reset, report editing, notifications, assignments, and analytics are not implemented.
 - The local automation environment had no browser surface, so visual browser checks at target widths could not be executed here; lint and production build passed.
 
 ## Exact next recommended task
 
-Deploy and test Firebase rules against an emulator or configured project, add Storage cleanup on failed report writes, then implement admin issue management.
+Deploy the updated Firestore rules, assign `admin: true` to the intended Firebase Auth user through a trusted Admin SDK environment, then test an admin status update and citizen tracking against the configured project.
 
 ## Recently changed files
 
@@ -51,4 +52,5 @@ Deploy and test Firebase rules against an emulator or configured project, add St
 - `src/layouts/MainLayout.jsx`, `src/pages/shared/HomePage.jsx`, `src/pages/shared/LoginPage.jsx`
 - `src/pages/citizen/ReportPage.jsx`, `TrackPage.jsx`, `MapPage.jsx`
 - `src/context/AuthContext.jsx`, `src/services/firebase/auth.js`, `src/services/firebase/reports.js`
+- `src/pages/admin/AdminDashboardPage.jsx`, `src/constants/status.js`, `firestore.rules`
 - `firestore.rules`, `storage.rules`, `README.md`

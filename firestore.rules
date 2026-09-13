@@ -4,11 +4,17 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function isAdmin() { return signedIn() && request.auth.token.admin == true; }
     function owns(data) { return signedIn() && data.userId == request.auth.uid; }
+    function isValidStatus(status) {
+      return status in ['submitted', 'under_review', 'assigned', 'in_progress', 'resolved'];
+    }
 
     match /reports/{reportId} {
       allow create: if signedIn() && request.resource.data.userId == request.auth.uid && request.resource.data.status == 'submitted';
       allow read: if owns(resource.data) || isAdmin();
-      allow update, delete: if isAdmin();
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && isValidStatus(request.resource.data.status);
+      allow delete: if false;
     }
     match /reportReferences/{referenceId} {
       allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
