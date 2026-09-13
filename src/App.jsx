@@ -8,6 +8,7 @@ import ReportPage from './pages/citizen/ReportPage.jsx'
 import TrackPage from './pages/citizen/TrackPage.jsx'
 import LoginPage from './pages/shared/LoginPage.jsx'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage.jsx'
+import AdminIssuesPage from './pages/admin/AdminIssuesPage.jsx'
 import NotFoundPage from './pages/shared/NotFoundPage.jsx'
 import AdminRoute from './routes/AdminRoute.jsx'
 
@@ -28,6 +29,7 @@ export default function App() {
       <Route element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboardPage />} />
+          <Route path="/admin/issues" element={<AdminIssuesPage />} />
         </Route>
       </Route>
 

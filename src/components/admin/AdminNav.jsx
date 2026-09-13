@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 
 const navigation = [
   { label: 'Overview', to: '/admin', icon: LayoutDashboard, available: true },
-  { label: 'Issues', icon: ClipboardList },
+  { label: 'Issues', to: '/admin/issues', icon: ClipboardList, available: true },
   { label: 'Map', icon: MapPinned },
   { label: 'Analytics', icon: BarChart3 },
   { label: 'Users', icon: Users },
